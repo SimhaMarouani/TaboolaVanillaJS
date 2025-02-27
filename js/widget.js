@@ -37,6 +37,11 @@ class RecommendationWidget {
                 this.createWidgetStructure();
             }
 
+            // Hide error message if it was displayed
+            if (this.errorElement) {
+                this.errorElement.style.display = 'none';
+            }
+
             // Show loading state
             this.showLoading(true);
 
@@ -193,7 +198,17 @@ class RecommendationWidget {
 
         // Add event listener to refresh button
         const refreshButton = emptyStateElement.querySelector('.refresh-button');
-        refreshButton.addEventListener('click', () => {
+        refreshButton.addEventListener('click', (event) => {
+            // Prevent default action to avoid any link behavior
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Clear the grid and show loading before initializing
+            this.gridElement.innerHTML = '';
+            this.showLoading(true);
+
+            // Reset retry count and initialize
+            this.retryCount = 0;
             this.initialize(5);
         });
 
@@ -329,6 +344,10 @@ class RecommendationWidget {
                 if (index !== -1) {
                     this.recommendations[index] = newRecommendation;
                 }
+            } else {
+                // No new recommendations could be fetched after retries
+                // Show error with retry button instead of staying in loading state
+                this.showReplacementError(currentElement, oldRecommendation);
             }
         } catch (error) {
             console.error('Error replacing recommendation:', error);
@@ -342,22 +361,39 @@ class RecommendationWidget {
             }
 
             // Show error in the item
-            currentElement.innerHTML = `
-                <div class="recommendation-error">
-                    <p>Failed to load new recommendation</p>
-                    <button class="recommendation-retry">Retry</button>
-                </div>
-            `;
-
-            // Add event listener to retry button
-            const retryButton = currentElement.querySelector('.recommendation-retry');
-            retryButton.addEventListener('click', () => {
-                this.removeAndReplaceRecommendation(currentElement, oldRecommendation);
-            });
+            this.showReplacementError(currentElement, oldRecommendation);
         } finally {
             // Always remove from active replacements set, even if error occurred
             this.activeReplacements.delete(recommendationId);
         }
+    }
+
+    /**
+     * Shows error UI for a recommendation that couldn't be replaced
+     * @param {HTMLElement} element - The recommendation DOM element
+     * @param {Object} oldRecommendation - The original recommendation
+     */
+    showReplacementError(element, oldRecommendation) {
+        element.innerHTML = `
+            <div class="recommendation-error">
+                <p>Failed to load new recommendation</p>
+                <button class="recommendation-retry">Try Again</button>
+            </div>
+        `;
+
+        // Add event listener to retry button
+        const retryButton = element.querySelector('.recommendation-retry');
+        retryButton.addEventListener('click', (event) => {
+            // Prevent default action to avoid any link behavior
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Display loading state again
+            element.innerHTML = `<div class="recommendation-loading">Loading...</div>`;
+
+            // Attempt to replace the recommendation again
+            this.removeAndReplaceRecommendation(element, oldRecommendation);
+        });
     }
 
     // Mobile-specific methods are in mobile.js
