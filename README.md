@@ -81,7 +81,13 @@ Run the tests with:
 ```
 npm test
 ```
+If you having trouble running the tests, try:
 
+```
+npm cache clean --force
+rm -rf node_modules
+npm install
+```
 ## Notes
 
 - The widget uses vanilla JavaScript with no libraries or frameworks for the runtime code.
