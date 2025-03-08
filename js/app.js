@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const CONTAINER_ID = 'taboola-recommendations';
     const RECOMMENDATION_COUNT = 5;
 
-    // Create the widget container if it doesn't exist
+    // Create the widget container
     let widgetContainer = document.getElementById(CONTAINER_ID);
     if (!widgetContainer) {
         widgetContainer = document.createElement('div');

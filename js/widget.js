@@ -26,7 +26,7 @@ class RecommendationWidget {
      * @param {number} count - Number of recommendations to fetch
      * @param {boolean} isRetry - Whether this is a retry attempt
      */
-    async initialize(count = 4, isRetry = false) {
+    async initialize(count, isRetry = false) {
         try {
             if (!isRetry) {
                 this.retryCount = 0;

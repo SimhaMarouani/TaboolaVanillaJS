@@ -158,7 +158,7 @@
         box-shadow: 0 -2px 5px rgba(0,0,0,0.1) !important;
         border-radius: 5px 5px 0 0 !important;
         padding: 5px 15px !important;
-        display: none !important; /* Hidden by default, shown via JS when widget is hidden */
+        display: none
         align-items: center !important;
         justify-content: center !important;
         font-size: 12px !important;

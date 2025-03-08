@@ -120,7 +120,7 @@
             // Only apply in mobile view
             if (!this.isMobileView) return;
 
-            const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const currentScrollTop = window.scrollY || document.documentElement.scrollTop;
 
             if (Math.abs(lastScrollTop - currentScrollTop) > scrollThreshold) {
                 // Scrolling down - hide the bar
