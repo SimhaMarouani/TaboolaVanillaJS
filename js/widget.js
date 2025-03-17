@@ -13,9 +13,6 @@ class RecommendationWidget {
         this.api = api;
         this.container = document.getElementById(containerId);
         this.recommendations = [];
-        this.maxRetries = 5;    // Maximum number of fetch retries to prevent infinite loops
-        this.retryCount = 0;    // Counter for retry attempts
-        this.retryDelay = 1000; // Time in ms between retries
         this.isMobileView = window.innerWidth <= 750; // Track if we're in mobile view
         this.scrollHandlers = []; // Keep track of scroll handlers to avoid duplicates
         this.activeReplacements = new Set(); // Track currently active replacements
@@ -26,12 +23,8 @@ class RecommendationWidget {
      * @param {number} count - Number of recommendations to fetch
      * @param {boolean} isRetry - Whether this is a retry attempt
      */
-    async initialize(count, isRetry = false) {
+    async initialize(count) {
         try {
-            if (!isRetry) {
-                this.retryCount = 0;
-            }
-
             // Create widget structure if it doesn't exist
             if (!this.gridElement) {
                 this.createWidgetStructure();
@@ -45,21 +38,8 @@ class RecommendationWidget {
             // Show loading state
             this.showLoading(true);
 
-            // Fetch recommendations
             this.recommendations = await this.api.getRecommendations(count);
 
-            // If no recommendations and we're under max retries, try again
-            if ((!this.recommendations || this.recommendations.length === 0) && this.retryCount < this.maxRetries) {
-                this.retryCount++;
-
-                // Wait a bit before retrying
-                setTimeout(() => {
-                    this.initialize(count, true);
-                }, this.retryDelay);
-                return;
-            }
-
-            // Render recommendations (will handle empty case if max retries reached)
             this.renderRecommendations();
 
             // Hide loading state
@@ -120,7 +100,7 @@ class RecommendationWidget {
         if (this.loadingElement) {
             if (isLoading) {
                 this.loadingElement.innerHTML = 'Loading recommendations...';
-                this.loadingElement.style.display = 'flex';
+                this.loadingElement.style.display = 'grid';
             } else {
                 this.loadingElement.style.display = 'none';
 
@@ -301,18 +281,7 @@ class RecommendationWidget {
 
         try {
             // Fetch a single new recommendation
-            let newRecommendations = [];
-            let retryCount = 0;
-
-            // Keep fetching until we get at least one recommendation or hit max retries
-            while ((!newRecommendations || newRecommendations.length === 0) && retryCount < this.maxRetries) {
-                newRecommendations = await this.api.getRecommendations(1);
-                if (!newRecommendations || newRecommendations.length === 0) {
-                    retryCount++;
-                    // Wait a bit before retrying
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-            }
+            let newRecommendations =  await this.api.getRecommendations(1);
 
             // Check if the element still exists and has the same loading ID
             // This ensures we don't replace an element that has already been replaced
