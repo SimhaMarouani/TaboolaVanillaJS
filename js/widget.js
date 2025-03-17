@@ -21,7 +21,6 @@ class RecommendationWidget {
     /**
      * Initialize the widget by fetching and rendering recommendations
      * @param {number} count - Number of recommendations to fetch
-     * @param {boolean} isRetry - Whether this is a retry attempt
      */
     async initialize(count) {
         try {
